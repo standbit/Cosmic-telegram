@@ -12,6 +12,7 @@ def download_picture(url, filename):
 def get_spacex_links():
     url = "https://api.spacexdata.com/v3/launches/{flight_number}"
     response = requests.get(url.format(flight_number=33))
+    response.raise_for_status()
     links = response.json()["links"]["flickr_images"]
     return links
 
@@ -19,11 +20,12 @@ def get_spacex_links():
 def main():
     space_dir = "./images/"
     Path(space_dir).mkdir(parents=True, exist_ok=True)
-    image_name = "hubble.jpeg"
-    filename = space_dir + image_name 
-    link = "https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg"
     try:
-        download_picture(link, filename)
+        links = get_spacex_links()
+        for image_number, link in enumerate(links):
+            image_name = f"spacex{image_number}.jpg"
+            filename = space_dir + image_name
+            download_picture(link, filename)
     except requests.exceptions.HTTPError as err:
             print("General Error, incorrect link\n", str(err))
     except requests.ConnectionError as err:
