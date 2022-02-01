@@ -9,28 +9,35 @@ def download_picture(url, filename):
         file.write(response.content)
 
 
-def get_spacex_links():
+def get_spacex_links(flight_number):
     url = "https://api.spacexdata.com/v3/launches/{flight_number}"
-    response = requests.get(url.format(flight_number=33))
+    response = requests.get(url.format(flight_number=flight_number))
     response.raise_for_status()
     links = response.json()["links"]["flickr_images"]
     return links
 
 
-def main():
-    space_dir = "./images/"
+def fetch_spacex_launch(flight_number):
+    space_dir = "./spacex_images/"
     Path(space_dir).mkdir(parents=True, exist_ok=True)
-    try:
-        links = get_spacex_links()
-        for image_number, link in enumerate(links):
+    url = "https://api.spacexdata.com/v3/launches/{flight_number}"
+    response = requests.get(url.format(flight_number=flight_number))
+    response.raise_for_status()
+    links = response.json()["links"]["flickr_images"]
+    for image_number, link in enumerate(links):
             image_name = f"spacex{image_number}.jpg"
             filename = space_dir + image_name
             download_picture(link, filename)
+
+
+def main():
+    try:
+        fetch_spacex_launch(25)
     except requests.exceptions.HTTPError as err:
             print("General Error, incorrect link\n", str(err))
     except requests.ConnectionError as err:
             print("Connection Error. Check Internet connection.\n", str(err))
-    print(get_spacex_links())
+
 
 if __name__ == "__main__":
     main()
