@@ -1,4 +1,8 @@
 import requests
+from pathlib import Path
+
+
+SPACE_DIR = "space_photos/"
 
 
 def get_picture():
@@ -10,10 +14,12 @@ def get_picture():
 
 def save_picture(response):
     filename = "hubble.jpeg"
-    with open(filename, 'wb') as file:
+    with open(SPACE_DIR + filename, 'wb') as file:
         file.write(response.content)
 
+
 def main():
+    Path("./space_photos/").mkdir(parents=True, exist_ok=True)
     try:
         response = get_picture()
     except requests.exceptions.HTTPError as err:
