@@ -2,31 +2,25 @@ import requests
 from pathlib import Path
 
 
-SPACE_DIR = "space_photos/"
-
-
-def get_picture():
-    url = "https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg"
+def download_picture(url, filename):
     response = requests.get(url)
     response.raise_for_status()
-    return response
-
-
-def save_picture(response):
-    filename = "hubble.jpeg"
-    with open(SPACE_DIR + filename, 'wb') as file:
+    with open(filename, 'wb') as file:
         file.write(response.content)
 
 
 def main():
-    Path("./space_photos/").mkdir(parents=True, exist_ok=True)
+    space_dir = "./images/"
+    Path(space_dir).mkdir(parents=True, exist_ok=True)
+    image_name = "hubble.jpeg"
+    filename = space_dir + image_name 
+    link = "https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg"
     try:
-        response = get_picture()
+        download_picture(link, filename)
     except requests.exceptions.HTTPError as err:
             print("General Error, incorrect link\n", str(err))
     except requests.ConnectionError as err:
             print("Connection Error. Check Internet connection.\n", str(err))
-    save_picture(response)
 
 
 if __name__ == "__main__":
