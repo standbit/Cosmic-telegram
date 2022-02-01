@@ -9,6 +9,13 @@ def download_picture(url, filename):
         file.write(response.content)
 
 
+def get_spacex_links():
+    url = "https://api.spacexdata.com/v3/launches/{flight_number}"
+    response = requests.get(url.format(flight_number=33))
+    links = response.json()["links"]["flickr_images"]
+    return links
+
+
 def main():
     space_dir = "./images/"
     Path(space_dir).mkdir(parents=True, exist_ok=True)
@@ -21,7 +28,7 @@ def main():
             print("General Error, incorrect link\n", str(err))
     except requests.ConnectionError as err:
             print("Connection Error. Check Internet connection.\n", str(err))
-
+    print(get_spacex_links())
 
 if __name__ == "__main__":
     main()
