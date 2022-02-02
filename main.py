@@ -1,4 +1,6 @@
+from distutils import extension
 import os
+from pkgutil import extend_path
 import requests
 from pathlib import Path
 from urllib.parse import urlparse, unquote_plus
@@ -44,12 +46,35 @@ def get_file_extension(link):
     return extension
 
 
+def fetch_nasa_pictures(number):
+    space_dir = "./nasa_images/"
+    Path(space_dir).mkdir(parents=True, exist_ok=True)
+    url = "https://api.nasa.gov/planetary/apod"
+    token = os.getenv("NASA_TOKEN")
+    payload = {
+        "api_key": token,
+        "count": number
+    }
+    response = requests.get(url, params=payload)
+    response.raise_for_status()
+    days = response.json()
+    links = []
+    for day in days:
+        if not day["url"]:
+            continue
+        links.append(day["url"])
+    for image_number, link in enumerate(links):
+        extension = get_file_extension(link)
+        image_name = f"nasa{image_number}{extension}"
+        filename = space_dir + image_name
+        download_picture(link, filename)
+
+
 def main():
     load_dotenv()
     try:
-        # fetch_spacex_launch(25)
-        nasa_link = get_nasa_image_link()
-        print(get_file_extension(nasa_link))
+        # fetch_spacex_launch(30)
+        fetch_nasa_pictures(30)
     except requests.exceptions.HTTPError as err:
             print("General Error, incorrect link\n", str(err))
     except requests.ConnectionError as err:
