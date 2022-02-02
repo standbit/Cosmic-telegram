@@ -1,6 +1,8 @@
 import os
 import requests
 from pathlib import Path
+from urllib.parse import urlparse, unquote_plus
+from os.path import splitext
 from dotenv import load_dotenv
 
 
@@ -36,11 +38,18 @@ def fetch_spacex_launch(flight_number):
             download_picture(link, filename)
 
 
+def get_file_extension(link):
+    link_path = unquote_plus(urlparse(link).path)
+    extension = splitext(link_path)[-1]
+    return extension
+
+
 def main():
     load_dotenv()
     try:
         # fetch_spacex_launch(25)
-        print(get_nasa_image_link())
+        nasa_link = get_nasa_image_link()
+        print(get_file_extension(nasa_link))
     except requests.exceptions.HTTPError as err:
             print("General Error, incorrect link\n", str(err))
     except requests.ConnectionError as err:
