@@ -1,11 +1,10 @@
-from distutils import extension
 import os
-from pkgutil import extend_path
 import requests
 from pathlib import Path
 from urllib.parse import urlparse, unquote_plus
 from os.path import splitext
 from dotenv import load_dotenv
+from pprint import pprint
 
 
 def download_picture(url, filename):
@@ -16,15 +15,18 @@ def download_picture(url, filename):
 
 
 def get_nasa_image_link():
-    url = "https://api.nasa.gov/planetary/apod"
+    url = "https://api.nasa.gov/EPIC/api/natural"
     token = os.getenv("NASA_TOKEN")
     payload = {
         "api_key": token
     }
     response = requests.get(url, params=payload)
     response.raise_for_status()
-    link = response.json()["url"]
-    return link
+    image_name = response.json()[0]["image"]
+    image_date = response.json()[0]["date"]
+    cutted_image_date = image_date[:10].replace("-", "/")
+    image_link = "https://epic.gsfc.nasa.gov/archive/natural/{date}/png/{img}.png".format(date=cutted_image_date, img=image_name)
+    return image_link
 
 
 def fetch_spacex_launch(flight_number):
@@ -73,8 +75,9 @@ def fetch_nasa_pictures(number):
 def main():
     load_dotenv()
     try:
-        # fetch_spacex_launch(30)
-        fetch_nasa_pictures(30)
+        # print(fetch_spacex_launch(30))
+        # fetch_nasa_pictures(30)
+        pprint(get_nasa_image_link())
     except requests.exceptions.HTTPError as err:
             print("General Error, incorrect link\n", str(err))
     except requests.ConnectionError as err:
