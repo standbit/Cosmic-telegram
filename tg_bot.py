@@ -1,4 +1,3 @@
-from email.policy import default
 import os
 import random
 import time
@@ -25,7 +24,7 @@ def main():
                 image=random.choice(cosmos_images)),
                 "rb")
                 )
-        time.sleep(sleep_time, default=15)
+        time.sleep(sleep_time)
 
 
 if __name__ == "__main__":
