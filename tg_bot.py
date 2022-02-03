@@ -1,37 +1,32 @@
+from email.policy import default
 import os
+import random
+import time
+
 from dotenv import load_dotenv
-from telegram.ext import Updater
-import logging
-from telegram import Update
-from telegram.ext import CallbackContext
-from telegram.ext import CommandHandler
-from telegram.ext import MessageHandler, Filters
 import telegram
 
 
-load_dotenv()
-TG_TOKEN = os.getenv("TG_TOKEN")
+SPACE_DIR = "./cosmos_images/"
 
 
-def hello(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text(f'Hello {update.effective_user.first_name}')
+def main():
+    load_dotenv()
+    tg_token = os.getenv("TG_TOKEN")
+    sleep_time = int(os.getenv("SLEEP_TIME"))
+    tg_chat_id = os.getenv("TG_CHAT_ID")
+    bot = telegram.Bot(token=tg_token)
+    cosmos_images = os.listdir(SPACE_DIR)
+    while True:
+        bot.send_photo(
+            chat_id=tg_chat_id,
+            photo=open("{dir}/{image}".format(
+                dir=SPACE_DIR,
+                image=random.choice(cosmos_images)),
+                "rb")
+                )
+        time.sleep(sleep_time, default=15)
 
-updater = Updater(TG_TOKEN, use_context=True)
-dispatcher = updater.dispatcher
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                     level=logging.INFO)
-
-def start(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
-
-start_handler = CommandHandler('start', start)
-dispatcher.add_handler(start_handler)
-
-bot = telegram.Bot(token=TG_TOKEN)
-tg_chat_id = '@cosmosfromphoto'
-bot.send_message(chat_id=tg_chat_id, text="Hi, everyone!")
-bot.send_photo(chat_id=tg_chat_id, photo=open('./nasa_apod_images/nasa1.jpg', 'rb'))
-
-updater.start_polling()
-updater.idle()
+if __name__ == "__main__":
+    main()

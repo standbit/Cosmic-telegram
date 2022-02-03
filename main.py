@@ -1,11 +1,16 @@
+from datetime import datetime
 import os
-import requests
+from os.path import splitext
 from pathlib import Path
 from urllib.parse import urlparse, unquote_plus
-from os.path import splitext
+
 from dotenv import load_dotenv
-from pprint import pprint
-from datetime import datetime
+import requests
+
+import tg_bot
+
+
+SPACE_DIR = "./cosmos_images/"
 
 
 def download_image(url, filename):
@@ -15,9 +20,8 @@ def download_image(url, filename):
         file.write(response.content)
 
 
-def fetch_nasa_epic_images(img_num):
+def fetch_nasa_epic_images(img_num, token):
     url = "https://api.nasa.gov/EPIC/api/natural"
-    token = os.getenv("NASA_TOKEN")
     payload = {
         "api_key": token
     }
@@ -27,31 +31,28 @@ def fetch_nasa_epic_images(img_num):
     links = []
     num = 0
     while num < img_num:
-        image_name = epic_json[num]["image"]
-        image_date = epic_json[num]["date"]
-        cutted_image_date = datetime.fromisoformat(image_date).strftime("%Y/%m/%d")
-        image_link = "https://epic.gsfc.nasa.gov/archive/natural/{date}/png/{img}.png".format(date=cutted_image_date, img=image_name)
+        img_name = epic_json[num]["image"]
+        img_date = epic_json[num]["date"]
+        short_img_date = datetime.fromisoformat(img_date).strftime("%Y/%m/%d")
+        base_link = "https://epic.gsfc.nasa.gov/archive/natural/{date}/png/{img}.png"    # Noqa E501
+        image_link = base_link.format(date=short_img_date, img=img_name)
         links.append(image_link)
         num += 1
-    space_dir = "./nasa_epic_images/"
-    Path(space_dir).mkdir(parents=True, exist_ok=True)
     for image_number, link in enumerate(links):
-            image_name = f"nasa_epic{image_number}.png"
-            filename = f"{space_dir}{image_name}"
-            download_image(link, filename)
+        image_name = f"nasa_epic{image_number}.png"
+        filename = f"{SPACE_DIR}{image_name}"
+        download_image(link, filename)
 
 
 def fetch_spacex_images(flight_num):
-    space_dir = "./spacex_images/"
-    Path(space_dir).mkdir(parents=True, exist_ok=True)
     url = "https://api.spacexdata.com/v3/launches/{flight_number}"
     response = requests.get(url.format(flight_number=flight_num))
     response.raise_for_status()
     links = response.json()["links"]["flickr_images"]
     for image_number, link in enumerate(links):
-            image_name = f"spacex{image_number}.jpg"
-            filename = f"{space_dir}{image_name}"
-            download_image(link, filename)
+        image_name = f"spacex{image_number}.jpg"
+        filename = f"{SPACE_DIR}{image_name}"
+        download_image(link, filename)
 
 
 def get_file_extension(link):
@@ -60,11 +61,8 @@ def get_file_extension(link):
     return extension
 
 
-def fetch_nasa_apod_images(img_num):
-    space_dir = "./nasa_apod_images/"
-    Path(space_dir).mkdir(parents=True, exist_ok=True)
+def fetch_nasa_apod_images(img_num, token):
     url = "https://api.nasa.gov/planetary/apod"
-    token = os.getenv("NASA_TOKEN")
     payload = {
         "api_key": token,
         "count": img_num
@@ -80,20 +78,23 @@ def fetch_nasa_apod_images(img_num):
     for image_number, link in enumerate(links):
         extension = get_file_extension(link)
         image_name = f"nasa{image_number}{extension}"
-        filename = f"{space_dir}{image_name}"
+        filename = f"{SPACE_DIR}{image_name}"
         download_image(link, filename)
 
 
 def main():
     load_dotenv()
+    Path(SPACE_DIR).mkdir(parents=True, exist_ok=True)
+    token = os.getenv("NASA_TOKEN")
     try:
-        fetch_nasa_epic_images(5)
-        fetch_nasa_apod_images(5)
-        fetch_spacex_images(16)
+        fetch_nasa_epic_images(5, token)
+        fetch_nasa_apod_images(15, token)
+        fetch_spacex_images(19)
     except requests.exceptions.HTTPError as err:
-            print("General Error, incorrect link\n", str(err))
+        print("General Error, incorrect link\n", str(err))
     except requests.ConnectionError as err:
-            print("Connection Error. Check Internet connection.\n", str(err))
+        print("Connection Error. Check Internet connection.\n", str(err))
+    tg_bot.main()
 
 
 if __name__ == "__main__":
