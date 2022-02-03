@@ -31,6 +31,7 @@ dispatcher.add_handler(start_handler)
 bot = telegram.Bot(token=TG_TOKEN)
 tg_chat_id = '@cosmosfromphoto'
 bot.send_message(chat_id=tg_chat_id, text="Hi, everyone!")
+bot.send_photo(chat_id=tg_chat_id, photo=open('./nasa_apod_images/nasa1.jpg', 'rb'))
 
 updater.start_polling()
 updater.idle()
