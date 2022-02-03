@@ -73,8 +73,13 @@ def main():
     load_dotenv()
     token = os.getenv("NASA_TOKEN")
     Path(SPACE_DIR).mkdir(parents=True, exist_ok=True)
-    fetch_nasa_apod_images(img_num=15, token=token)
-    fetch_nasa_epic_images(img_num=5, token=token)
+    try:
+        fetch_nasa_apod_images(img_num=15, token=token)
+        fetch_nasa_epic_images(img_num=3, token=token)
+    except requests.exceptions.HTTPError as err:
+        print("General Error, incorrect link\n", str(err))
+    except requests.ConnectionError as err:
+        print("Connection Error. Check Internet connection.\n", str(err))
 
 
 if __name__ == "__main__":

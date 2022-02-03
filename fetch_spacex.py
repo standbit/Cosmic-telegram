@@ -26,7 +26,12 @@ def fetch_spacex_images(flight_num):
 
 def main():
     Path(SPACE_DIR).mkdir(parents=True, exist_ok=True)
-    fetch_spacex_images(flight_num=33)
+    try:
+        fetch_spacex_images(flight_num=33)
+    except requests.exceptions.HTTPError as err:
+        print("General Error, incorrect link\n", str(err))
+    except requests.ConnectionError as err:
+        print("Connection Error. Check Internet connection.\n", str(err))
 
 
 if __name__ == "__main__":
