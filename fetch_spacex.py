@@ -2,15 +2,10 @@ from pathlib import Path
 
 import requests
 
+from save_image import download_image
+
 
 SPACE_DIR = "./cosmos_images/"
-
-
-def download_image(url, filename):
-    response = requests.get(url)
-    response.raise_for_status()
-    with open(filename, 'wb') as file:
-        file.write(response.content)
 
 
 def fetch_spacex_images(flight_num):

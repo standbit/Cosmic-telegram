@@ -7,15 +7,10 @@ from urllib.parse import urlparse, unquote_plus
 from dotenv import load_dotenv
 import requests
 
+from save_image import download_image
+
 
 SPACE_DIR = "./cosmos_images/"
-
-
-def download_image(url, filename):
-    response = requests.get(url)
-    response.raise_for_status()
-    with open(filename, 'wb') as file:
-        file.write(response.content)
 
 
 def fetch_nasa_epic_images(img_num, token):
@@ -74,7 +69,7 @@ def main():
     token = os.getenv("NASA_TOKEN")
     Path(SPACE_DIR).mkdir(parents=True, exist_ok=True)
     try:
-        fetch_nasa_apod_images(img_num=15, token=token)
+        fetch_nasa_apod_images(img_num=10, token=token)
         fetch_nasa_epic_images(img_num=3, token=token)
     except requests.exceptions.HTTPError as err:
         print("General Error, incorrect link\n", str(err))
