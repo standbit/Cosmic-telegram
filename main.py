@@ -17,13 +17,10 @@ def main():
     bot = telegram.Bot(token=tg_token)
     cosmos_images = os.listdir(SPACE_DIR)
     while True:
-        bot.send_photo(
-            chat_id=tg_chat_id,
-            photo=open("{dir}/{image}".format(
-                dir=SPACE_DIR,
-                image=random.choice(cosmos_images)),
-                "rb")
-                )
+        image_name = random.choice(cosmos_images)
+        filename = f"{SPACE_DIR}/{image_name}"
+        with open(filename, "rb") as photo:
+            bot.send_photo(chat_id=tg_chat_id, photo=photo)
         time.sleep(sleep_time)
 
 
