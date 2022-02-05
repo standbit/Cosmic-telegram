@@ -18,7 +18,7 @@ def main():
     cosmos_images = os.listdir(SPACE_DIR)
     while True:
         image_name = random.choice(cosmos_images)
-        filename = f"{SPACE_DIR}/{image_name}"
+        filename = f"{SPACE_DIR}{image_name}"
         with open(filename, "rb") as photo:
             bot.send_photo(chat_id=tg_chat_id, photo=photo)
         time.sleep(sleep_time)

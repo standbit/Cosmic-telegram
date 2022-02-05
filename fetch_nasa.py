@@ -51,9 +51,9 @@ def fetch_nasa_apod_images(img_num, token):
     }
     response = requests.get(url, params=payload)
     response.raise_for_status()
-    days = response.json()
+    converted_response = response.json()
     links = []
-    for day in days:
+    for day in converted_response:
         if not day["url"]:
             continue
         links.append(day["url"])
