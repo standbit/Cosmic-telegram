@@ -20,12 +20,12 @@ def fetch_nasa_epic_images(img_num, token):
     }
     response = requests.get(url, params=payload)
     response.raise_for_status()
-    epic_json = response.json()
+    converted_response = response.json()
     links = []
     num = 0
     while num < img_num:
-        img_name = epic_json[num]["image"]
-        img_date = epic_json[num]["date"]
+        img_name = converted_response[num]["image"]
+        img_date = converted_response[num]["date"]
         short_img_date = datetime.fromisoformat(img_date).strftime("%Y/%m/%d")
         base_link = "https://epic.gsfc.nasa.gov/archive/natural/{date}/png/{img}.png"    # Noqa E501
         image_link = base_link.format(date=short_img_date, img=img_name)
