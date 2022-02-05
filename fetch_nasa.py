@@ -13,7 +13,7 @@ from save_image import download_image
 SPACE_DIR = "./cosmos_images/"
 
 
-def fetch_nasa_epic_images(img_num, token):
+def fetch_nasa_epic_images(token):
     url = "https://api.nasa.gov/EPIC/api/natural"
     payload = {
         "api_key": token
@@ -22,15 +22,13 @@ def fetch_nasa_epic_images(img_num, token):
     response.raise_for_status()
     converted_response = response.json()
     links = []
-    num = 0
-    while num < img_num:
-        img_name = converted_response[num]["image"]
-        img_date = converted_response[num]["date"]
+    for quote in converted_response:
+        img_name = quote["image"]
+        img_date = quote["date"]
         short_img_date = datetime.fromisoformat(img_date).strftime("%Y/%m/%d")
         base_link = "https://epic.gsfc.nasa.gov/archive/natural/{date}/png/{img}.png"    # Noqa E501
         image_link = base_link.format(date=short_img_date, img=img_name)
         links.append(image_link)
-        num += 1
     for image_number, link in enumerate(links):
         image_name = f"nasa_epic{image_number}.png"
         filename = f"{SPACE_DIR}{image_name}"
@@ -70,7 +68,7 @@ def main():
     Path(SPACE_DIR).mkdir(parents=True, exist_ok=True)
     try:
         fetch_nasa_apod_images(img_num=10, token=token)
-        fetch_nasa_epic_images(img_num=3, token=token)
+        fetch_nasa_epic_images(token=token)
     except requests.exceptions.HTTPError as err:
         print("General Error, incorrect link\n", str(err))
     except requests.ConnectionError as err:
